@@ -1,0 +1,13 @@
+# Ignore node modules and local env files
+node_modules
+npm-debug.log
+.env
+Dockerfile
+.dockerignore
+logs
+*.log
+dist
+coverage
+/.vscode
+/.idea
+*.tgz
