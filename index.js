@@ -1,9 +1,9 @@
+require('dotenv').config();
 const express = require("express");
 const path = require("path");
-const prisma = require("./connect.js");
+const prisma = require("./connect");
 const urlRoute = require("./routes/url");
 const staticRouter = require('./routes/staticRouter');
-require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3333;
