@@ -1,24 +1,22 @@
-const { nanoid } = require("nanoid"); // got this form npm js or nanoid github
-// shortid(4); //=> "oAIa"
-const URL = require("../models/url");
+const { nanoid } = require("nanoid");
+const prisma = require("../connect");
 
 const PORT = process.env.PORT || 3333;
 const baseURL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
 async function handleGenerateNewShortUrl(req, res) {
-  // const body = req.body; //  data sent by client (POST request).
   const { url, customId } = req.body;
   if (!url) return res.status(400).json({ error: "url is required" });
 
   if (customId && customId.trim() !== "") {
-    const existingCustom = await URL.findOne({ shortId: customId });
+    const existingCustom = await prisma.url.findUnique({ where: { shortId: customId } });
     if (existingCustom) {
       return res.render("home", {
         error: "Custom short ID is already taken",
         baseURL,
       });
     }
-    const existingURL = await URL.findOne({ redirectURL: url });
+    const existingURL = await prisma.url.findFirst({ where: { redirectURL: url } });
     if (existingURL) {
       return res.render("home", {
         id: existingURL.shortId,
@@ -26,10 +24,11 @@ async function handleGenerateNewShortUrl(req, res) {
       });
     }
 
-    const customURL = await URL.create({
-      shortId: customId,
-      redirectURL: url,
-      visitHistory: [],
+    const customURL = await prisma.url.create({
+      data: {
+        shortId: customId,
+        redirectURL: url,
+      },
     });
 
     return res.render("home", {
@@ -40,7 +39,7 @@ async function handleGenerateNewShortUrl(req, res) {
 
   const shortId = nanoid(8);
 
-  const existingURL = await URL.findOne({ redirectURL: url });
+  const existingURL = await prisma.url.findFirst({ where: { redirectURL: url } });
 
   if (existingURL) {
     return res.render("home", {
@@ -48,39 +47,40 @@ async function handleGenerateNewShortUrl(req, res) {
       baseURL,
     });
   }
-  await URL.create({
-    // URL.create(...) → Mongoose method to insert a new document in MongoDB.
-    shortId: shortId,
-    redirectURL: url,
-    visitHistory: [],
+  await prisma.url.create({
+    data: {
+      shortId: shortId,
+      redirectURL: url,
+    },
   });
-
 
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
   const skip = (page - 1) * limit;
 
-  const totalUrls = await URL.countDocuments();
-  const urls = await URL.find().skip(skip).limit(limit).lean();
+  const totalUrls = await prisma.url.count();
+  const urls = await prisma.url.findMany({ skip, take: limit });
 
   return res.render("home", {
     id: shortId,
     baseURL,
     urls,
     currentPage: page,
-    totalPages: Math.ceil(totalUrls / limit)
+    totalPages: Math.ceil(totalUrls / limit),
   });
-  // return res.json({ id: shortId });
 }
 
 async function handleGetAnalytics(req, res) {
-  const shortId = req.params.shortId; // req.params.shortId → dynamic parameter in URL (/analytics/:shortId).
-  const result = await URL.findOne({ shortId }); // URL.findOne(...) → Mongoose method to find a single document.
+  const shortId = req.params.shortId;
+  const result = await prisma.url.findUnique({
+    where: { shortId },
+    include: { visits: true },
+  });
   return res.render("analytics", {
     shortId: result.shortId,
     redirectURL: result.redirectURL,
-    totalClicks: result.visitHistory.length,
-    analytics: result.visitHistory,
+    totalClicks: result.visits.length,
+    analytics: result.visits,
     baseURL: process.env.BASE_URL || "http://localhost:3333",
   });
 }
@@ -91,8 +91,8 @@ async function renderHome(req, res) {
     const limit = 10;
     const skip = (page - 1) * limit;
 
-    const totalUrls = await URL.countDocuments();
-    const urls = await URL.find().skip(skip).limit(limit).lean();
+    const totalUrls = await prisma.url.count();
+    const urls = await prisma.url.findMany({ skip, take: limit });
 
     res.render("home", {
       urls,

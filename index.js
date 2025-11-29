@@ -1,7 +1,6 @@
 const express = require("express");
 const path = require("path");
-const { connectToMongoDB } = require("./connect");
-const URL = require("./models/url");
+const prisma = require("./connect");
 const urlRoute = require("./routes/url");
 const staticRouter = require('./routes/staticRouter');
 require('dotenv').config();
@@ -9,58 +8,48 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3333;
 
-// const baseURL = process.env.BASE_URL || (process.env.PORT ? `https://snapurl.waltonbd.com/` : `http://localhost:${PORT}`);
 const baseURL = process.env.BASE_URL || `http://localhost:${PORT}`; 
 
-const MONGO_URI = process.env.MONGO_URI;
-
-connectToMongoDB(MONGO_URI);
-
-// connectToMongoDB("mongodb://localhost:27017/short-url").then(() =>
-//   console.log("mongodb connected")
-// );
-
-app.set("view engine", "ejs"); // set view engine
+app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 
-app.use(express.json());  // Express built-in middleware to parse JSON
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.get("/test", async(req, res) => {
-  const allUrls = await URL.find({});
+  const allUrls = await prisma.url.findMany({});
   return res.render("home", {
     urls: allUrls,
     baseURL,
   });
 });
 
-app.use("/url", urlRoute);  // All routes inside urlRoute will be prefixed with /url
+app.use("/url", urlRoute);
 
 app.use("/", staticRouter);
 
 app.get("/:shortId", async (req, res) => {
   const shortId = req.params.shortId;
-  const entry = await URL.findOneAndUpdate(
-    {
-      shortId,
+  const url = await prisma.url.findUnique({
+    where: {
+      shortId: shortId,
     },
-    {
-      $push: {
-        visitHistory: {
-          timestamp: Date.now(),
-        },
-      },
-    }
-  );
+  });
 
-  if (!entry) {
+  if (!url) {
     return res.status(404).send("Short URL not found");
   }
 
-  res.redirect(entry.redirectURL); // .redirect() → a built-in Express function that tells the browser/client to go to a different URL.
+  await prisma.visit.create({
+    data: {
+      timestamp: Date.now(),
+      urlId: url.id,
+    },
+  });
+
+  res.redirect(url.redirectURL);
 });
 
 app.listen(PORT, () => {
   console.log(`Server started at ${PORT}`);
 });
-
