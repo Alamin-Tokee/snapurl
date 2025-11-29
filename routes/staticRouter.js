@@ -1,5 +1,5 @@
 const express = require('express');
-const prisma = require("../connect");
+const prisma = require("../connect.js");
 const router = express.Router(); // to handle modular routes.
 const { renderHome } = require("../controllers/url");
 

@@ -1,5 +1,5 @@
 const { nanoid } = require("nanoid");
-const prisma = require("../connect");
+const prisma = require("../connect.js");
 
 const PORT = process.env.PORT || 3333;
 const baseURL = process.env.BASE_URL || `http://localhost:${PORT}`;

@@ -1,6 +1,6 @@
 const express = require("express");
 const path = require("path");
-const prisma = require("./connect");
+const prisma = require("./connect.js");
 const urlRoute = require("./routes/url");
 const staticRouter = require('./routes/staticRouter');
 require('dotenv').config();
