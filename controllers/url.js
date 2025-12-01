@@ -59,7 +59,7 @@ async function handleGenerateNewShortUrl(req, res) {
   const skip = (page - 1) * limit;
 
   const totalUrls = await prisma.url.count();
-  const urls = await prisma.url.findMany({ skip, take: limit });
+  const urls = await prisma.url.findMany({ skip, take: limit, orderBy: {id: 'desc' }, include: { visits: true }});
 
   return res.render("home", {
     id: shortId,
@@ -70,20 +70,49 @@ async function handleGenerateNewShortUrl(req, res) {
   });
 }
 
+// async function handleGetAnalytics(req, res) {
+//   const shortId = req.params.shortId;
+//   const result = await prisma.url.findUnique({
+//     where: { shortId },
+//     include: { visits: true },
+//   });
+//   return res.render("analytics", {
+//     shortId: result.shortId,
+//     redirectURL: result.redirectURL,
+//     totalClicks: result.visits.length,
+//     analytics: result.visits,
+//     baseURL: process.env.BASE_URL || "http://localhost:3333",
+//   });
+// }
+
+
 async function handleGetAnalytics(req, res) {
   const shortId = req.params.shortId;
+
   const result = await prisma.url.findUnique({
     where: { shortId },
-    include: { visits: true },
+    include: { visits: true }, // include visits
   });
+
+  if (!result) {
+    return res.status(404).send("URL not found");
+  }
+
+  // Convert BigInt to Number for safe JSON serialization
+  const normalizedVisits = result.visits.map(v => ({
+    ...v,
+    timestamp: Number(v.timestamp), // BigInt -> Number
+  }));
+
   return res.render("analytics", {
     shortId: result.shortId,
     redirectURL: result.redirectURL,
-    totalClicks: result.visits.length,
-    analytics: result.visits,
+    totalClicks: normalizedVisits.length,
+    analytics: normalizedVisits,
     baseURL: process.env.BASE_URL || "http://localhost:3333",
   });
 }
+
 
 async function renderHome(req, res) {
   try {
@@ -92,7 +121,7 @@ async function renderHome(req, res) {
     const skip = (page - 1) * limit;
 
     const totalUrls = await prisma.url.count();
-    const urls = await prisma.url.findMany({ skip, take: limit });
+    const urls = await prisma.url.findMany({ include: { visits: true }, skip, take: limit, orderBy: {id: 'desc' }});
 
     res.render("home", {
       urls,
@@ -106,8 +135,33 @@ async function renderHome(req, res) {
   }
 }
 
+
+
+async function redirectUrlFromShortid(req, res) {
+ const shortId = req.params.shortId;
+  const url = await prisma.url.findUnique({
+    where: {
+      shortId: shortId,
+    },
+  });
+
+  if (!url) {
+    return res.status(404).send("Short URL not found");
+  }
+
+  await prisma.visitHistory.create({
+    data: {
+      timestamp: Date.now(),
+      urlId: url.id,
+    },
+  });
+
+  res.redirect(url.redirectURL);
+}
+
 module.exports = {
   handleGenerateNewShortUrl,
   handleGetAnalytics,
   renderHome,
+  redirectUrlFromShortid
 };

@@ -252,11 +252,11 @@
                 </td>
                 <td>
                   <i class="fas fa-calendar me-2 text-muted"></i>
-                  <%= new Date(entry.timestamp).toLocaleDateString() %>
+                  <%= new Date(Number(entry.timestamp)).toLocaleDateString() %>
                 </td>
                 <td>
                   <i class="fas fa-clock me-2 text-muted"></i>
-                  <%= new Date(entry.timestamp).toLocaleTimeString() %>
+                  <%= new Date(Number(entry.timestamp)).toLocaleTimeString() %>
                 </td>
                 <td>
                   <span class="badge bg-success">

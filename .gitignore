@@ -3,3 +3,4 @@ node_modules/
 
 /generated/prisma
 npm_output.log
+prisma/migrations/

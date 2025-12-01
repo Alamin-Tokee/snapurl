@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for SnapURL (Node.js Express app)
 # Use a minimal Node image and install production dependencies
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Create app directory
 WORKDIR /app
