@@ -1,6 +1,7 @@
 node_modules/
+prisma/migrations/
 .env
 
 /generated/prisma
 npm_output.log
-prisma/migrations/
+
