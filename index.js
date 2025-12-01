@@ -6,7 +6,7 @@ const urlRouter = require("./routes/url");
 const staticRouter = require('./routes/staticRouter');
 
 const app = express();
-const PORT = process.env.PORT || 3333;
+const PORT = process.env.PORT || 3000;
 
 const baseURL = process.env.BASE_URL || `http://localhost:${PORT}`; 
 

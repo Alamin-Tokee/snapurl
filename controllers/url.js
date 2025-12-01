@@ -1,7 +1,7 @@
 const { nanoid } = require("nanoid");
 const prisma = require("../connect");
 
-const PORT = process.env.PORT || 3333;
+const PORT = process.env.PORT || 3000;
 const baseURL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
 async function handleGenerateNewShortUrl(req, res) {
@@ -81,7 +81,7 @@ async function handleGenerateNewShortUrl(req, res) {
 //     redirectURL: result.redirectURL,
 //     totalClicks: result.visits.length,
 //     analytics: result.visits,
-//     baseURL: process.env.BASE_URL || "http://localhost:3333",
+//     baseURL: process.env.BASE_URL || "http://localhost:3000",
 //   });
 // }
 
@@ -109,7 +109,7 @@ async function handleGetAnalytics(req, res) {
     redirectURL: result.redirectURL,
     totalClicks: normalizedVisits.length,
     analytics: normalizedVisits,
-    baseURL: process.env.BASE_URL || "http://localhost:3333",
+    baseURL: process.env.BASE_URL || "http://localhost:3000",
   });
 }
 
@@ -125,7 +125,7 @@ async function renderHome(req, res) {
 
     res.render("home", {
       urls,
-      baseURL: process.env.BASE_URL || `http://localhost:${process.env.PORT || 3333}`,
+      baseURL: process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`,
       currentPage: page,
       totalPages: Math.ceil(totalUrls / limit),
     });

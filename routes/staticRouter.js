@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
     const allurls = await prisma.url.findMany({}); // gets all urls from database
     return res.render("home", {
         urls: allurls,
-        baseURL: process.env.BASE_URL || `http://localhost:${process.env.PORT || 3333}`
+        baseURL: process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`
     });
 })
 
