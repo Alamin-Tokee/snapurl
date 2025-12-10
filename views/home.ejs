@@ -378,7 +378,22 @@
       <div class="header">
         <h1><i class="fas fa-link"></i> SnapURL</h1>
         <p>Transform long URLs into short links</p>
+
+        <% if (locals.user_name) { %>
+          <p>
+            <strong><%= locals.user_name %></strong> (<%= locals.user_id %>)
+            
+            <!-- Logout button -->
+            <a href="/logout" 
+              class="btn btn-sm btn-danger ms-3"
+              title="Logout"
+              style="border-radius: 30px;">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+          </p>
+        <% } %>
       </div>
+
 
       <div class="main-card">
         <% if(locals.id) {%>

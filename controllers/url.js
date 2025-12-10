@@ -1,8 +1,42 @@
 const { nanoid } = require("nanoid");
 const prisma = require("../connect");
+const axios = require("axios");
 
 const PORT = process.env.PORT || 3000;
 const baseURL = process.env.BASE_URL || `http://localhost:${PORT}`;
+
+
+
+async function handleLogin(req, res) {
+  //const { userId, password } = req.body;
+
+  try {
+
+    const user_id = req.body.userId;
+    const password = encodeURIComponent(req.body.password);
+
+    const url = `http://192.168.200.200:8281/auth/CheckUser/index?userId=${user_id}&userPass=${password}&sysName=global_report`;
+
+    const response = await axios.get(url);
+    const data = response.data;
+
+    // console.log(data.auth);
+
+    if (data.auth == true) {
+      req.session.user_id = user_id;
+      req.session.user_name = data.name;
+
+      return res.redirect("/home");  // SUCCESS
+    }else{
+      return res.render("login", { error: "HRMS Server Error" });
+    }
+    
+  } catch (err) {
+    return res.render("login", { error: "HRMS Server Error" });
+  }
+};
+
+
 
 async function handleGenerateNewShortUrl(req, res) {
   const { url, customId } = req.body;
@@ -28,6 +62,8 @@ async function handleGenerateNewShortUrl(req, res) {
       data: {
         shortId: customId,
         redirectURL: url,
+        creatorId: req.session.user_id,
+        creatorName: req.session.user_name,
       },
     });
 
@@ -51,17 +87,28 @@ async function handleGenerateNewShortUrl(req, res) {
     data: {
       shortId: shortId,
       redirectURL: url,
+      creatorId: req.session.user_id,
+      creatorName: req.session.user_name,
     },
   });
+
+  const user_id = req.session.user_id;
+  const user_name = req.session.user_name;
 
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
   const skip = (page - 1) * limit;
 
-  const totalUrls = await prisma.url.count();
-  const urls = await prisma.url.findMany({ skip, take: limit, orderBy: {id: 'desc' }, include: { visits: true }});
+  const totalUrls = await prisma.url.count({ where: { creatorId: user_id } });
+  const urls = await prisma.url.findMany({ where: { creatorId: user_id }, skip, take: limit, orderBy: {id: 'desc' }, include: { visits: true }});
+
+  
+
+  // console.log(user);
 
   return res.render("home", {
+    user_id: user_id,
+    user_name: user_name,
     id: shortId,
     baseURL,
     urls,
@@ -120,10 +167,17 @@ async function renderHome(req, res) {
     const limit = 10;
     const skip = (page - 1) * limit;
 
-    const totalUrls = await prisma.url.count();
-    const urls = await prisma.url.findMany({ include: { visits: true }, skip, take: limit, orderBy: {id: 'desc' }});
+    const user_id = req.session.user_id;
+    const user_name = req.session.user_name;
 
+
+    const totalUrls = await prisma.url.count({ where: { creatorId: user_id } });
+    const urls = await prisma.url.findMany({ where: { creatorId: user_id }, include: { visits: true }, skip, take: limit, orderBy: {id: 'desc' }});
+
+  
     res.render("home", {
+      user_id: user_id,
+      user_name: user_name,
       urls,
       baseURL: process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`,
       currentPage: page,
@@ -160,6 +214,7 @@ async function redirectUrlFromShortid(req, res) {
 }
 
 module.exports = {
+  handleLogin,
   handleGenerateNewShortUrl,
   handleGetAnalytics,
   renderHome,
