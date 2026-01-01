@@ -20,6 +20,14 @@ async function handleLogin(req, res) {
     const response = await axios.get(url);
     const data = response.data;
 
+    const auth_user_api = "http://capi.waltonbd.com/api.php?report_id=520&code=" + user_id;
+
+    const response_api = await axios.get(auth_user_api);
+
+    console.log(response_api.data.success);
+
+    if(response_api.data.success == false) {return res.render("login", { error: "Your are not authorized" });}
+
     // console.log(data.auth);
 
     if (data.auth == true) {
@@ -39,6 +47,7 @@ async function handleLogin(req, res) {
 
 
 async function handleGenerateNewShortUrl(req, res) {
+
   const { url, customId } = req.body;
   if (!url) return res.status(400).json({ error: "url is required" });
 

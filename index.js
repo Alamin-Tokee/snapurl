@@ -8,8 +8,9 @@ const loginRouter = require('./routes/loginRouter');
 const logoutRouter = require('./routes/logoutRouter');
 const openRouter = require('./routes/openRouter');
 const session = require("express-session");
-
+const accessRequired = require("./middlewares/accessRequired");
 const authRequired = require("./middlewares/authRequired");
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,6 +27,11 @@ app.use(session({
 }));
 
 
+
+// Needed if behind proxy (Docker, NGINX, etc.)
+app.set("trust proxy", true);
+
+
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 
@@ -40,13 +46,13 @@ app.use(express.urlencoded({ extended: false }));
 //   });
 // });
 
-app.use("/login", loginRouter);
-app.use("/logout", logoutRouter);
-app.use("/home", authRequired, homeRouter);
+app.use("/login", accessRequired, loginRouter);
+app.use("/logout", accessRequired, logoutRouter);
+app.use("/home", accessRequired, authRequired, homeRouter);
 
 app.use("/", openRouter);
 
-app.use("/url", authRequired, urlRouter);
+app.use("/url", accessRequired, authRequired, urlRouter);
 
 // app.get("/:shortId", redirectUrlFromShortid);
 
