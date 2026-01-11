@@ -9,9 +9,10 @@ services:
     ports:
       - "3333:3333"
     environment:
-      # Use your Atlas connection string instead
-      MONGO_URI: "mongodb+srv://<username>:<password>@<cluster>.mongodb.net/snapurl?retryWrites=true&w=majority"
+      DATABASE_URL: "mysql://snapurl_user:snapurl_password@host.docker.internal:3306/snapurl?charset=utf8mb4&timezone=UTC"
       PORT: "3333"
     restart: unless-stopped
 
-# No local MongoDB needed when using Atlas
+    # REQUIRED for Linux hosts
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
