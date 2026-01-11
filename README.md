@@ -45,7 +45,7 @@ cp .env.example .env
 -------------------------------
    DATABASE_URL="mysql://root:your_password@localhost:3306/your_database_name"
    PORT=3000
-   BASE_URL=http://localhost:3000
+   BASE_URL=http://localhost:3000 # This url will expose as a shorturl, so carefully check it. 
    NODE_ENV=development
    # Optional: JWT_SECRET=your-super-secret-key-32chars+
 -------------------------------
@@ -56,7 +56,7 @@ cp .env.example .env
 # or step by step:
 npm prisma db push     # Fast sync (no migration files)
 # OR full migration flow:
-npm prisma migrate --name init
+npm prisma migrate --name init # Recommended process for this project
 #seed for dummy data
 #pnpm prisma db seed
 
