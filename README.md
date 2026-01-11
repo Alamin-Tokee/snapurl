@@ -15,10 +15,10 @@
 ## Features (example – modify according to your project)
 
 - User authentication (register/login/logout)
-- CRUD operations with nice UI
+- Functional operations for shorturl management
 - Prisma migrations & seeding
 - Environment variables management
-- Basic layout with Tailwind CSS / Bootstrap (choose one)
+- Basic layout with EJS template engine
 
 ## Prerequisites
 
