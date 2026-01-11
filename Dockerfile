@@ -18,7 +18,7 @@ RUN npm install --production --silent
 COPY . .
 
 # Expose the port the app listens on (default in repo is 3333)
-EXPOSE 3333
+EXPOSE 3000
 
-# Default command. Provide MONGO_URI and optionally PORT when running the container.
+# Default command. Provide DATABASE_URL and optionally PORT when running the container.
 CMD ["node", "index.js"]

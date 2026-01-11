@@ -9,7 +9,7 @@ services:
     ports:
       - "3333:3333"
     environment:
-      DATABASE_URL: "mysql://snapurl_user:snapurl_password@host.docker.internal:3306/snapurl?charset=utf8mb4&timezone=UTC"
+      DATABASE_URL: "mysql://root:@localhost:3306/test"
       PORT: "3333"
     restart: unless-stopped
 
