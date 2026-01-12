@@ -63,3 +63,37 @@ npm prisma migrate --name init # Recommended process for this project
 # 6. Start development server
 npm run start
 
+```
+
+## Running with Docker (Recommended for Production/Testing)
+
+
+```bash
+
+# 1. Clone project (if not done)
+git clone https://gitlab.waltonbd.com/whiplc-com-ict/soft-dev/inner/mfg/snapurl.git
+cd snapurl
+
+# 2. Copy and configure environment variables
+touch .env
+
+# Important: Use service name 'db' in DATABASE_URL
+# Pase this content inside the environment variable file
+DATABASE_URL="mysql://root:your_secure_password@db:3306/snapurl"
+PORT=3000
+BASE_URL=http://localhost:3000           # change to your domain in production
+
+#build and run the container 
+docker compose up -d --build
+
+#Check error and health abouth contianer and application 
+docker compose logs -f app
+
+#If need to build again the conatainer 
+#Stop the container 
+docker stop CONTAINER_ID
+
+# Remove the container 
+docker rm CONTAINER_ID
+
+#Then again build the container

@@ -1,18 +1,18 @@
-version: '3.8'
+version: "3.8"
 
 services:
   app:
+    container_name: snapurl_app
     build:
       context: .
       dockerfile: Dockerfile
     image: snapurl:latest
+    env_file:
+      - .env
     ports:
-      - "3333:3333"
-    environment:
-      DATABASE_URL: "mysql://root:@localhost:3306/test"
-      PORT: "3333"
+      - "${PORT}:${PORT}"
     restart: unless-stopped
 
-    # REQUIRED for Linux hosts
+    # Required for Linux to access host DB
     extra_hosts:
       - "host.docker.internal:host-gateway"

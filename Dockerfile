@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for SnapURL (Node.js Express app)
 # Use a minimal Node image and install production dependencies
-FROM node:20-alpine
+FROM node:20-bullseye
 
 # Create app directory
 WORKDIR /app
@@ -11,6 +11,10 @@ ENV NODE_ENV=production
 # Copy package manifests first to leverage Docker cache
 COPY package*.json ./
 
+
+# Copy prisma folder BEFORE npm install
+COPY prisma ./prisma
+
 # Install production dependencies. Use npm install to support projects without a lockfile.
 RUN npm install --production --silent
 
@@ -18,7 +22,7 @@ RUN npm install --production --silent
 COPY . .
 
 # Expose the port the app listens on (default in repo is 3333)
-EXPOSE 3000
+EXPOSE 5555
 
 # Default command. Provide DATABASE_URL and optionally PORT when running the container.
 CMD ["node", "index.js"]
